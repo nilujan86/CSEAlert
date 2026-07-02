@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/cse_blue"
+            app:titleTextColor="@android:color/white" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                style="@android:style/Widget.ProgressBar.Horizontal"
+                android:indeterminate="true"
+                android:indeterminateTint="@color/cse_blue"
+                android:visibility="gone"
+                android:layout_marginBottom="8dp" />
+
+            <!-- ── SEARCH CARD ─────────────────────────────────────────── -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardSearch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/card_bg"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="6dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="SEARCH COMPANY"
+                        android:textColor="#888888"
+                        android:textSize="11sp"
+                        android:letterSpacing="0.12"
+                        android:layout_marginBottom="10dp" />
+
+                    <EditText
+                        android:id="@+id/etSearch"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Type name or symbol…"
+                        android:textColor="@android:color/white"
+                        android:textColorHint="#666666"
+                        android:inputType="text"
+                        android:background="@drawable/input_bg"
+                        android:padding="12dp" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvSearch"
+                        android:layout_width="match_parent"
+                        android:layout_height="280dp"
+                        android:layout_marginTop="8dp"
+                        android:clipToPadding="false" />
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- ── SELECTED STOCK HEADER ──────────────────────────────── -->
+            <LinearLayout
+                android:id="@+id/btnChangeStock"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvSelectedSymbol"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@android:color/white"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvSelectedName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#AAAAAA"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tvCurrentPrice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/cse_blue_light"
+                        android:textSize="13sp"
+                        android:visibility="gone"
+                        android:layout_marginTop="2dp" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Change"
+                    android:textColor="@color/cse_blue_light"
+                    android:textSize="13sp"
+                    android:padding="8dp" />
+            </LinearLayout>
+
+            <!-- ── ALERT FORM CARD ────────────────────────────────────── -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardForm"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:cardBackgroundColor="@color/card_bg"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="6dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <!-- Target price -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="TARGET PRICE (LKR)"
+                        android:textColor="#888888"
+                        android:textSize="11sp"
+                        android:letterSpacing="0.12"
+                        android:layout_marginBottom="8dp" />
+
+                    <EditText
+                        android:id="@+id/etTargetPrice"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="e.g. 850.00"
+                        android:inputType="numberDecimal"
+                        android:textColor="@android:color/white"
+                        android:textColorHint="#666666"
+                        android:textSize="22sp"
+                        android:background="@drawable/input_bg"
+                        android:padding="12dp" />
+
+                    <!-- Condition -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="NOTIFY WHEN PRICE IS"
+                        android:textColor="#888888"
+                        android:textSize="11sp"
+                        android:letterSpacing="0.12"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginBottom="10dp" />
+
+                    <RadioGroup
+                        android:id="@+id/rgCondition"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <RadioButton
+                            android:id="@+id/rbAbove"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="▲ ABOVE target"
+                            android:textColor="@color/gain_green"
+                            android:buttonTint="@color/gain_green"
+                            android:checked="true"
+                            android:padding="8dp" />
+
+                        <RadioButton
+                            android:id="@+id/rbBelow"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="▼ BELOW target"
+                            android:textColor="@color/loss_red"
+                            android:buttonTint="@color/loss_red"
+                            android:padding="8dp" />
+                    </RadioGroup>
+
+                    <!-- Optional note -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="NOTE (optional)"
+                        android:textColor="#888888"
+                        android:textSize="11sp"
+                        android:letterSpacing="0.12"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginBottom="8dp" />
+
+                    <EditText
+                        android:id="@+id/etNote"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="e.g. Buy signal, Stop loss…"
+                        android:inputType="text"
+                        android:textColor="@android:color/white"
+                        android:textColorHint="#666666"
+                        android:background="@drawable/input_bg"
+                        android:padding="12dp" />
+
+                    <!-- Save button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSave"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_marginTop="24dp"
+                        android:text="SET ALERT"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="@color/cse_blue"
+                        app:cornerRadius="12dp" />
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

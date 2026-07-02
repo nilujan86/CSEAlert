@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="12dp"
+    android:layout_marginEnd="12dp"
+    android:layout_marginBottom="10dp"
+    app:cardBackgroundColor="@color/card_bg"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="5dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Row 1: symbol + condition badge + status -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tvSymbol"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="LOLC"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvCondition"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="▲ ABOVE"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:layout_marginEnd="10dp" />
+
+            <TextView
+                android:id="@+id/tvStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="● ACTIVE"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Company name -->
+        <TextView
+            android:id="@+id/tvCompanyName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="LOLC Holdings PLC"
+            android:textColor="#AAAAAA"
+            android:textSize="12sp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:layout_marginTop="2dp" />
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#22ffffff"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp" />
+
+        <!-- Prices row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvTargetPrice"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Target: LKR —"
+                android:textColor="@android:color/white"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvCurrentPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Current: LKR —"
+                android:textColor="#AAAAAA"
+                android:textSize="13sp"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <!-- Note -->
+        <TextView
+            android:id="@+id/tvNote"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textColor="#888888"
+            android:textSize="12sp"
+            android:fontFamily="monospace"
+            android:layout_marginTop="4dp"
+            android:visibility="gone" />
+
+        <!-- Triggered at -->
+        <TextView
+            android:id="@+id/tvTriggeredAt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textColor="@color/color_triggered"
+            android:textSize="11sp"
+            android:layout_marginTop="4dp"
+            android:visibility="gone" />
+
+        <!-- Action buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="12dp"
+            android:gravity="end">
+
+            <Button
+                android:id="@+id/btnReactivate"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="Reactivate"
+                android:textSize="12sp"
+                android:backgroundTint="@color/cse_blue"
+                android:textColor="@android:color/white"
+                android:layout_marginEnd="8dp"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/btnDisable"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="Disable"
+                android:textSize="12sp"
+                android:backgroundTint="#333333"
+                android:textColor="#AAAAAA"
+                android:layout_marginEnd="8dp"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/btnDelete"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="Delete"
+                android:textSize="12sp"
+                android:backgroundTint="@color/loss_red"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
