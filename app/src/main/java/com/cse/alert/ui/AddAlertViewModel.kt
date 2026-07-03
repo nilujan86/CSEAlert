@@ -30,12 +30,13 @@ class AddAlertViewModel(app: Application) : AndroidViewModel(app) {
     val navigateBack: LiveData<Boolean> = _navigateBack
 
     fun search(query: String) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            _searchResults.value = repo.searchSymbols(query)
-            _isLoading.value = false
-        }
+    viewModelScope.launch {
+        _isLoading.value = true
+        val results = repo.searchSymbols(query)
+        _searchResults.value = results
+        _isLoading.value = false
     }
+}
 
     fun selectStock(stock: SymbolSearchResult) {
         _selectedStock.value = stock
