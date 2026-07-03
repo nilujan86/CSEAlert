@@ -77,21 +77,67 @@ class AlertRepository(context: Context) {
 
     // ── Symbol search ─────────────────────────────────────────────────────────
 
-    suspend fun searchSymbols(query: String): List<SymbolSearchResult> {
-        return try {
-            val response = if (query.isBlank()) {
-                api.getAllSymbols()
-            } else {
-                api.searchSymbols(query)
-            }
+suspend fun searchSymbols(query: String): List<SymbolSearchResult> {
+    return try {
+        if (query.isBlank()) {
+            // Try allSymbols endpoint first
+            val response = api.getAllSymbols()
             if (response.isSuccessful) {
                 val results = response.body()?.filter { it.symbol.isNotEmpty() } ?: emptyList()
-                if (results.isEmpty()) fallback(query) else results
+                if (results.isNotEmpty()) return results
+            }
+            // Fall back to searching with common letters to get more results
+            fetchByMultipleKeywords()
+        } else {
+            val response = api.searchSymbols(query)
+            if (response.isSuccessful) {
+                val results = response.body()?.filter { it.symbol.isNotEmpty() } ?: emptyList()
+                if (results.isNotEmpty()) results else fallback(query)
             } else fallback(query)
+        }
+    } catch (e: Exception) {
+        if (query.isBlank()) fetchByMultipleKeywords() else fallback(query)
+    }
+}
+
+/**
+ * CSE symbol search returns results per keyword.
+ * We search A–Z to harvest as many listed companies as possible.
+ */
+private suspend fun fetchByMultipleKeywords(): List<SymbolSearchResult> {
+    val all = mutableMapOf<String, SymbolSearchResult>()
+
+    // Search every letter of the alphabet
+    val keywords = ('A'..'Z').map { it.toString() } +
+                   listOf("PLC", "BANK", "HOTEL", "FUND", "CEYLON",
+                          "LANKA", "SRI", "NATIONAL", "EASTERN", "WESTERN",
+                          "CAPITAL", "FINANCE", "INSURANCE", "POWER", "GAS")
+
+    for (keyword in keywords) {
+        try {
+            val response = api.searchSymbols(keyword)
+            if (response.isSuccessful) {
+                response.body()
+                    ?.filter { it.symbol.isNotEmpty() }
+                    ?.forEach { all[it.symbol] = it }
+            }
         } catch (e: Exception) {
-            fallback(query)
+            // Skip failed keyword, continue with next
         }
     }
+
+    return if (all.isNotEmpty()) {
+        all.values.sortedBy { it.name }
+    } else {
+        CSE_POPULAR
+    }
+}
+
+private fun fallback(query: String) = if (query.isBlank()) CSE_POPULAR
+else CSE_POPULAR.filter {
+    it.symbol.contains(query, ignoreCase = true) ||
+    it.name.contains(query, ignoreCase = true)
+}
 
     suspend fun fetchCompanyInfo(symbol: String): SymbolInfo? {
         return try {
