@@ -1,7 +1,7 @@
 package com.cse.alert.data
 
-import android.content.Context
 import com.cse.alert.model.*
+import android.content.Context
 import kotlinx.coroutines.flow.Flow
 
 class AlertRepository(context: Context) {
@@ -27,10 +27,6 @@ class AlertRepository(context: Context) {
 
     // ── Price checking ────────────────────────────────────────────────────────
 
-    /**
-     * Fetches current price for [symbol].
-     * Returns the price or null on failure.
-     */
     suspend fun fetchCurrentPrice(symbol: String): Double? {
         return try {
             val response = api.getCompanyInfo(symbol)
@@ -42,18 +38,12 @@ class AlertRepository(context: Context) {
         }
     }
 
-    /**
-     * Checks all ACTIVE alerts against live prices.
-     * Returns list of alerts that were just triggered.
-     */
     suspend fun checkAllAlerts(): List<PriceAlert> {
         val active = dao.getActiveAlerts()
         val triggered = mutableListOf<PriceAlert>()
 
         for (alert in active) {
             val price = fetchCurrentPrice(alert.symbol) ?: continue
-
-            // Update stored current price
             dao.updateCurrentPrice(alert.id, price)
 
             val conditionMet = when (alert.condition) {
@@ -77,78 +67,67 @@ class AlertRepository(context: Context) {
 
     // ── Symbol search ─────────────────────────────────────────────────────────
 
-suspend fun searchSymbols(query: String): List<SymbolSearchResult> {
-    return try {
-        if (query.isBlank()) {
-            // Try allSymbols endpoint first
-            val response = api.getAllSymbols()
-            if (response.isSuccessful) {
-                val results = response.body()?.filter { it.symbol.isNotEmpty() } ?: emptyList()
-                if (results.isNotEmpty()) return results
-            }
-            // Fall back to searching with common letters to get more results
-            fetchByMultipleKeywords()
-        } else {
-            val response = api.searchSymbols(query)
-            if (response.isSuccessful) {
-                val results = response.body()?.filter { it.symbol.isNotEmpty() } ?: emptyList()
-                if (results.isNotEmpty()) results else fallback(query)
-            } else fallback(query)
-        }
-    } catch (e: Exception) {
-        if (query.isBlank()) fetchByMultipleKeywords() else fallback(query)
-    }
-}
-
-/**
- * CSE symbol search returns results per keyword.
- * We search A–Z to harvest as many listed companies as possible.
- */
-private suspend fun fetchByMultipleKeywords(): List<SymbolSearchResult> {
-    val all = mutableMapOf<String, SymbolSearchResult>()
-
-    // Search every letter of the alphabet
-    val keywords = ('A'..'Z').map { it.toString() } +
-                   listOf("PLC", "BANK", "HOTEL", "FUND", "CEYLON",
-                          "LANKA", "SRI", "NATIONAL", "EASTERN", "WESTERN",
-                          "CAPITAL", "FINANCE", "INSURANCE", "POWER", "GAS")
-
-    for (keyword in keywords) {
-        try {
-            val response = api.searchSymbols(keyword)
-            if (response.isSuccessful) {
-                response.body()
-                    ?.filter { it.symbol.isNotEmpty() }
-                    ?.forEach { all[it.symbol] = it }
+    suspend fun searchSymbols(query: String): List<SymbolSearchResult> {
+        return try {
+            if (query.isBlank()) {
+                // Try allSymbols endpoint first
+                val response = api.getAllSymbols()
+                if (response.isSuccessful) {
+                    val results = response.body()?.filter { it.symbol.isNotEmpty() } ?: emptyList()
+                    if (results.isNotEmpty()) return results
+                }
+                // Fall back to A-Z sweep
+                fetchByMultipleKeywords()
+            } else {
+                val response = api.searchSymbols(query)
+                if (response.isSuccessful) {
+                    val results = response.body()?.filter { it.symbol.isNotEmpty() } ?: emptyList()
+                    if (results.isNotEmpty()) results else fallback(query)
+                } else fallback(query)
             }
         } catch (e: Exception) {
-            // Skip failed keyword, continue with next
+            if (query.isBlank()) fetchByMultipleKeywords() else fallback(query)
         }
     }
 
-    return if (all.isNotEmpty()) {
-        all.values.sortedBy { it.name }
-    } else {
-        CSE_POPULAR
-    }
-}
+    private suspend fun fetchByMultipleKeywords(): List<SymbolSearchResult> {
+        val all = mutableMapOf<String, SymbolSearchResult>()
 
-private fun fallback(query: String) = if (query.isBlank()) CSE_POPULAR
-else CSE_POPULAR.filter {
-    it.symbol.contains(query, ignoreCase = true) ||
-    it.name.contains(query, ignoreCase = true)
-}
+        val keywords = ('A'..'Z').map { it.toString() } +
+                listOf("PLC", "BANK", "HOTEL", "FUND", "CEYLON",
+                    "LANKA", "SRI", "NATIONAL", "EASTERN", "WESTERN",
+                    "CAPITAL", "FINANCE", "INSURANCE", "POWER", "GAS")
 
-    suspend fun fetchCompanyInfo(symbol: String): SymbolInfo? {
-        return try {
-            val r = api.getCompanyInfo(symbol)
-            if (r.isSuccessful) r.body()?.symbolInfo else null
-        } catch (e: Exception) { null }
+        for (keyword in keywords) {
+            try {
+                val response = api.searchSymbols(keyword)
+                if (response.isSuccessful) {
+                    response.body()
+                        ?.filter { it.symbol.isNotEmpty() }
+                        ?.forEach { all[it.symbol] = it }
+                }
+            } catch (e: Exception) {
+                // Skip failed keyword, continue with next
+            }
+        }
+
+        return if (all.isNotEmpty()) {
+            all.values.sortedBy { it.name }
+        } else {
+            CSE_POPULAR
+        }
     }
 
     private fun fallback(query: String) = if (query.isBlank()) CSE_POPULAR
     else CSE_POPULAR.filter {
         it.symbol.contains(query, ignoreCase = true) ||
         it.name.contains(query, ignoreCase = true)
+    }
+
+    suspend fun fetchCompanyInfo(symbol: String): SymbolInfo? {
+        return try {
+            val r = api.getCompanyInfo(symbol)
+            if (r.isSuccessful) r.body()?.symbolInfo else null
+        } catch (e: Exception) { null }
     }
 }
