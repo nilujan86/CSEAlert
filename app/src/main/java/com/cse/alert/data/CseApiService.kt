@@ -3,6 +3,7 @@ package com.cse.alert.data
 import com.cse.alert.model.CompanyInfoResponse
 import com.cse.alert.model.MarketSummaryResponse
 import com.cse.alert.model.SymbolSearchResult
+import com.cse.alert.model.TodaySharePrice
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -23,6 +24,7 @@ interface CseApiService {
         @Field("keyword") keyword: String
     ): Response<List<SymbolSearchResult>>
 
-    @GET("allSymbols")
-    suspend fun getAllSymbols(): Response<List<SymbolSearchResult>>
+    /** Returns ALL listed companies with today's prices — single POST, no params needed */
+    @POST("todaySharePrice")
+    suspend fun getTodaySharePrice(): Response<List<TodaySharePrice>>
 }
