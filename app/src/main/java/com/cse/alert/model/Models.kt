@@ -4,21 +4,9 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 
-// ── Alert condition types ─────────────────────────────────────────────────────
+enum class AlertCondition { ABOVE, BELOW }
 
-enum class AlertCondition {
-    ABOVE,   // notify when price goes ABOVE target
-    BELOW    // notify when price goes BELOW target
-}
-
-enum class AlertStatus {
-    ACTIVE,     // watching
-    TRIGGERED,  // condition met, notification sent
-    SNOOZED,    // user snoozed it
-    DISABLED    // user turned it off
-}
-
-// ── Room entity ───────────────────────────────────────────────────────────────
+enum class AlertStatus { ACTIVE, TRIGGERED, SNOOZED, DISABLED }
 
 @Entity(tableName = "price_alerts")
 data class PriceAlert(
@@ -27,15 +15,13 @@ data class PriceAlert(
     val symbol: String,
     val companyName: String,
     val targetPrice: Double,
-    val condition: AlertCondition,      // ABOVE or BELOW
+    val condition: AlertCondition,
     val status: AlertStatus = AlertStatus.ACTIVE,
     val currentPrice: Double = 0.0,
     val createdAt: Long = System.currentTimeMillis(),
     val triggeredAt: Long? = null,
-    val note: String = ""               // optional user note e.g. "Buy signal"
+    val note: String = ""
 )
-
-// ── API response models ───────────────────────────────────────────────────────
 
 data class CompanyInfoResponse(
     @SerializedName("reqSymbolInfo") val symbolInfo: SymbolInfo?
@@ -60,22 +46,13 @@ data class MarketSummaryResponse(
     @SerializedName("aspiChangePercentage") val aspiChangePercentage: Double?
 )
 
-// ── UI state ──────────────────────────────────────────────────────────────────
-
-data class AlertUiState(
-    val alerts: List<PriceAlert> = emptyList(),
-    val isLoading: Boolean = false,
-    val message: String? = null,
-    val searchResults: List<SymbolSearchResult> = emptyList()
-)
 data class TodaySharePrice(
-    @SerializedName("symbol")          val symbol: String,
-    @SerializedName("name")            val name: String,
+    @SerializedName("symbol") val symbol: String,
+    @SerializedName("name") val name: String,
     @SerializedName("lastTradedPrice") val lastTradedPrice: Double,
-    @SerializedName("change")          val change: Double,
-    @SerializedName("changePerc")      val changePerc: Double
+    @SerializedName("change") val change: Double,
+    @SerializedName("changePerc") val changePerc: Double
 )
-// ── Popular CSE stocks fallback ───────────────────────────────────────────────
 
 val CSE_POPULAR = listOf(
     SymbolSearchResult("LOLC.N0000",  "LOLC Holdings PLC"),
