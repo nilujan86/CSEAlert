@@ -1,7 +1,7 @@
 package com.cse.alert.data
 
-import com.cse.alert.model.*
 import android.content.Context
+import com.cse.alert.model.*
 import kotlinx.coroutines.flow.Flow
 
 class AlertRepository(context: Context) {
@@ -69,51 +69,41 @@ class AlertRepository(context: Context) {
 
     suspend fun searchSymbols(query: String): List<SymbolSearchResult> {
         return try {
+            // Always fetch the full list from todaySharePrice — single call, all companies
+            val allCompanies = fetchAllCompanies()
+
             if (query.isBlank()) {
-                // Try allSymbols endpoint first
-                val response = api.getAllSymbols()
-                if (response.isSuccessful) {
-                    val results = response.body()?.filter { it.symbol.isNotEmpty() } ?: emptyList()
-                    if (results.isNotEmpty()) return results
-                }
-                // Fall back to A-Z sweep
-                fetchByMultipleKeywords()
+                allCompanies
             } else {
-                val response = api.searchSymbols(query)
-                if (response.isSuccessful) {
-                    val results = response.body()?.filter { it.symbol.isNotEmpty() } ?: emptyList()
-                    if (results.isNotEmpty()) results else fallback(query)
-                } else fallback(query)
+                allCompanies.filter {
+                    it.symbol.contains(query, ignoreCase = true) ||
+                    it.name.contains(query, ignoreCase = true)
+                }
             }
         } catch (e: Exception) {
-            if (query.isBlank()) fetchByMultipleKeywords() else fallback(query)
+            fallback(query)
         }
     }
 
-    private suspend fun fetchByMultipleKeywords(): List<SymbolSearchResult> {
-        val all = mutableMapOf<String, SymbolSearchResult>()
+    /**
+     * Single POST to todaySharePrice — returns all ~285 listed companies at once.
+     * Maps TodaySharePrice → SymbolSearchResult for use in the search UI.
+     */
+    private suspend fun fetchAllCompanies(): List<SymbolSearchResult> {
+        return try {
+            val response = api.getTodaySharePrice()
+            if (response.isSuccessful) {
+                val results = response.body()
+                    ?.filter { it.symbol.isNotEmpty() }
+                    ?.map { SymbolSearchResult(symbol = it.symbol, name = it.name) }
+                    ?.sortedBy { it.name }
+                    ?: emptyList()
 
-        val keywords = ('A'..'Z').map { it.toString() } +
-                listOf("PLC", "BANK", "HOTEL", "FUND", "CEYLON",
-                    "LANKA", "SRI", "NATIONAL", "EASTERN", "WESTERN",
-                    "CAPITAL", "FINANCE", "INSURANCE", "POWER", "GAS")
-
-        for (keyword in keywords) {
-            try {
-                val response = api.searchSymbols(keyword)
-                if (response.isSuccessful) {
-                    response.body()
-                        ?.filter { it.symbol.isNotEmpty() }
-                        ?.forEach { all[it.symbol] = it }
-                }
-            } catch (e: Exception) {
-                // Skip failed keyword, continue with next
+                if (results.isNotEmpty()) results else CSE_POPULAR
+            } else {
+                CSE_POPULAR
             }
-        }
-
-        return if (all.isNotEmpty()) {
-            all.values.sortedBy { it.name }
-        } else {
+        } catch (e: Exception) {
             CSE_POPULAR
         }
     }
