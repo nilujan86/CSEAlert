@@ -28,30 +28,35 @@ data class CompanyInfoResponse(
 )
 
 data class SymbolInfo(
-    @SerializedName("symbol") val symbol: String,
-    @SerializedName("name") val name: String,
-    @SerializedName("lastTradedPrice") val lastTradedPrice: Double,
-    @SerializedName("change") val change: Double,
+    @SerializedName("symbol")           val symbol: String,
+    @SerializedName("name")             val name: String,
+    @SerializedName("lastTradedPrice")  val lastTradedPrice: Double,
+    @SerializedName("change")           val change: Double,
     @SerializedName("changePercentage") val changePercentage: Double
 )
 
 data class SymbolSearchResult(
     @SerializedName("symbol") val symbol: String,
-    @SerializedName("name") val name: String
+    @SerializedName("name")   val name: String
 )
 
 data class MarketSummaryResponse(
-    @SerializedName("aspi") val aspi: Double?,
-    @SerializedName("aspiChange") val aspiChange: Double?,
-    @SerializedName("aspiChangePercentage") val aspiChangePercentage: Double?
+    @SerializedName("aspi")                  val aspi: Double?,
+    @SerializedName("aspiChange")            val aspiChange: Double?,
+    @SerializedName("aspiChangePercentage")  val aspiChangePercentage: Double?
 )
 
+/** Matches the actual todaySharePrice response fields from CSE API */
 data class TodaySharePrice(
-    @SerializedName("symbol") val symbol: String,
-    @SerializedName("name") val name: String,
-    @SerializedName("lastTradedPrice") val lastTradedPrice: Double,
-    @SerializedName("change") val change: Double,
-    @SerializedName("changePerc") val changePerc: Double
+    @SerializedName("symbol")           val symbol: String       = "",
+    @SerializedName("name")             val name: String         = "",
+    @SerializedName("lastTradedPrice")  val lastTradedPrice: Double = 0.0,
+    @SerializedName("closingPrice")     val closingPrice: Double = 0.0,
+    @SerializedName("change")           val change: Double       = 0.0,
+    @SerializedName("changePerc")       val changePerc: Double   = 0.0,
+    @SerializedName("high")             val high: Double         = 0.0,
+    @SerializedName("low")              val low: Double          = 0.0,
+    @SerializedName("volume")           val volume: Long         = 0L
 )
 
 val CSE_POPULAR = listOf(
