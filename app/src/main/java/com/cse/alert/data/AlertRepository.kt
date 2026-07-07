@@ -70,61 +70,45 @@ class AlertRepository(context: Context) {
 
     // ── Symbol search ─────────────────────────────────────────────────────────
 
-suspend fun searchSymbols(query: String): List<SymbolSearchResult> {
-    // Try live API first, merge with static list so nothing is ever missing
-    val liveList = fetchAllCompanies()
-    val merged = (liveList + CSE_ALL_COMPANIES)
-        .distinctBy { it.symbol }
-        .sortedBy { it.name }
+    suspend fun searchSymbols(query: String): List<SymbolSearchResult> {
+        val liveList = fetchLiveCompanies()
+        val merged = (liveList + CSE_ALL_COMPANIES)
+            .distinctBy { it.symbol }
+            .sortedBy { it.name }
 
-    return if (query.isBlank()) merged
-    else merged.filter {
-        it.symbol.contains(query, ignoreCase = true) ||
-        it.name.contains(query, ignoreCase = true)
-    }
-}
-
-    private suspend fun fetchAllCompanies(): List<SymbolSearchResult> {
-    return try {
-        val response = api.getTodaySharePrice()
-        if (response.isSuccessful) {
-            response.body()
-                ?.filter { it.symbol.isNotEmpty() }
-                ?.map { SymbolSearchResult(symbol = it.symbol, name = it.name) }
-                ?: emptyList()
-        } else emptyList()
-    } catch (e: Exception) {
-        emptyList()
-    }
-}
-
-    /** Secondary fallback — searches common prefixes to get broader coverage */
-    private suspend fun fetchViaSearch(): List<SymbolSearchResult> {
-        val all = mutableMapOf<String, SymbolSearchResult>()
-        val keywords = listOf(
-            "A", "B", "C", "D", "E", "F", "G", "H",
-            "I", "J", "K", "L", "M", "N", "O", "P",
-            "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"
-        )
-        for (kw in keywords) {
-            try {
-                val r = api.searchSymbols(kw)
-                if (r.isSuccessful) {
-                    r.body()
-                        ?.filter { it.symbol.isNotEmpty() }
-                        ?.forEach { all[it.symbol] = it }
-                }
-            } catch (e: Exception) { /* skip */ }
+        return if (query.isBlank()) {
+            merged
+        } else {
+            merged.filter {
+                it.symbol.contains(query, ignoreCase = true) ||
+                it.name.contains(query, ignoreCase = true)
+            }
         }
-        return if (all.isNotEmpty()) all.values.sortedBy { it.name }
-        else CSE_POPULAR
     }
 
-    private fun fallback(query: String): List<SymbolSearchResult> {
-        return if (query.isBlank()) CSE_POPULAR
-        else CSE_POPULAR.filter {
-            it.symbol.contains(query, ignoreCase = true) ||
-            it.name.contains(query, ignoreCase = true)
+    private suspend fun fetchLiveCompanies(): List<SymbolSearchResult> {
+        return try {
+            val response = api.getTodaySharePrice()
+            Log.d("CSEAlert", "todaySharePrice HTTP ${response.code()}")
+            if (response.isSuccessful) {
+                val results = response.body()
+                    ?.filter { it.symbol.isNotEmpty() }
+                    ?.map { item ->
+                        // Determine if voting or non-voting from symbol suffix
+                        val label = if (item.symbol.contains(".X")) " (Non-Voting)" else " (Voting)"
+                        SymbolSearchResult(
+                            symbol = item.symbol,
+                            name   = item.name + label
+                        )
+                    } ?: emptyList()
+                Log.d("CSEAlert", "Live companies fetched: ${results.size}")
+                results
+            } else {
+                emptyList()
+            }
+        } catch (e: Exception) {
+            Log.e("CSEAlert", "fetchLiveCompanies error: ${e.message}")
+            emptyList()
         }
     }
 
