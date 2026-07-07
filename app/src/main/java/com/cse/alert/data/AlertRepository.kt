@@ -1,6 +1,7 @@
 package com.cse.alert.data
 
 import android.content.Context
+import android.util.Log
 import com.cse.alert.model.*
 import kotlinx.coroutines.flow.Flow
 
@@ -58,7 +59,9 @@ class AlertRepository(context: Context) {
                     ts = System.currentTimeMillis(),
                     price = price
                 )
-                triggered.add(alert.copy(currentPrice = price, status = AlertStatus.TRIGGERED))
+                triggered.add(
+                    alert.copy(currentPrice = price, status = AlertStatus.TRIGGERED)
+                )
             }
         }
 
@@ -70,6 +73,8 @@ class AlertRepository(context: Context) {
     suspend fun searchSymbols(query: String): List<SymbolSearchResult> {
         return try {
             val allCompanies = fetchAllCompanies()
+            Log.d("CSEAlert", "Total companies loaded: ${allCompanies.size}")
+
             if (query.isBlank()) {
                 allCompanies
             } else {
@@ -79,6 +84,7 @@ class AlertRepository(context: Context) {
                 }
             }
         } catch (e: Exception) {
+            Log.e("CSEAlert", "searchSymbols failed: ${e.message}")
             fallback(query)
         }
     }
@@ -86,19 +92,52 @@ class AlertRepository(context: Context) {
     private suspend fun fetchAllCompanies(): List<SymbolSearchResult> {
         return try {
             val response = api.getTodaySharePrice()
+            Log.d("CSEAlert", "todaySharePrice HTTP ${response.code()}")
+
             if (response.isSuccessful) {
-                val results = response.body()
+                val body = response.body()
+                Log.d("CSEAlert", "todaySharePrice body size: ${body?.size}")
+
+                val results = body
                     ?.filter { it.symbol.isNotEmpty() }
                     ?.map { SymbolSearchResult(symbol = it.symbol, name = it.name) }
                     ?.sortedBy { it.name }
                     ?: emptyList()
+
+                Log.d("CSEAlert", "Parsed companies: ${results.size}")
+
                 if (results.isNotEmpty()) results else CSE_POPULAR
             } else {
-                CSE_POPULAR
+                Log.e("CSEAlert", "todaySharePrice error body: ${response.errorBody()?.string()}")
+                // Try symbolSearch as fallback to get more companies
+                fetchViaSearch()
             }
         } catch (e: Exception) {
-            CSE_POPULAR
+            Log.e("CSEAlert", "fetchAllCompanies exception: ${e.message}")
+            fetchViaSearch()
         }
+    }
+
+    /** Secondary fallback — searches common prefixes to get broader coverage */
+    private suspend fun fetchViaSearch(): List<SymbolSearchResult> {
+        val all = mutableMapOf<String, SymbolSearchResult>()
+        val keywords = listOf(
+            "A", "B", "C", "D", "E", "F", "G", "H",
+            "I", "J", "K", "L", "M", "N", "O", "P",
+            "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"
+        )
+        for (kw in keywords) {
+            try {
+                val r = api.searchSymbols(kw)
+                if (r.isSuccessful) {
+                    r.body()
+                        ?.filter { it.symbol.isNotEmpty() }
+                        ?.forEach { all[it.symbol] = it }
+                }
+            } catch (e: Exception) { /* skip */ }
+        }
+        return if (all.isNotEmpty()) all.values.sortedBy { it.name }
+        else CSE_POPULAR
     }
 
     private fun fallback(query: String): List<SymbolSearchResult> {
