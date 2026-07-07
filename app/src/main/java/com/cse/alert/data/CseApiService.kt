@@ -24,6 +24,10 @@ interface CseApiService {
         @Field("keyword") keyword: String
     ): Response<List<SymbolSearchResult>>
 
+    /** Returns all ~286 listed companies — POST with no body required */
+    @FormUrlEncoded
     @POST("todaySharePrice")
-    suspend fun getTodaySharePrice(): Response<List<TodaySharePrice>>
+    suspend fun getTodaySharePrice(
+        @Field("key") key: String = ""
+    ): Response<List<TodaySharePrice>>
 }
