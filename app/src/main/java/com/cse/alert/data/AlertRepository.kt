@@ -69,9 +69,7 @@ class AlertRepository(context: Context) {
 
     suspend fun searchSymbols(query: String): List<SymbolSearchResult> {
         return try {
-            // Always fetch the full list from todaySharePrice — single call, all companies
             val allCompanies = fetchAllCompanies()
-
             if (query.isBlank()) {
                 allCompanies
             } else {
@@ -85,10 +83,6 @@ class AlertRepository(context: Context) {
         }
     }
 
-    /**
-     * Single POST to todaySharePrice — returns all ~285 listed companies at once.
-     * Maps TodaySharePrice → SymbolSearchResult for use in the search UI.
-     */
     private suspend fun fetchAllCompanies(): List<SymbolSearchResult> {
         return try {
             val response = api.getTodaySharePrice()
@@ -98,7 +92,6 @@ class AlertRepository(context: Context) {
                     ?.map { SymbolSearchResult(symbol = it.symbol, name = it.name) }
                     ?.sortedBy { it.name }
                     ?: emptyList()
-
                 if (results.isNotEmpty()) results else CSE_POPULAR
             } else {
                 CSE_POPULAR
@@ -108,10 +101,12 @@ class AlertRepository(context: Context) {
         }
     }
 
-    private fun fallback(query: String) = if (query.isBlank()) CSE_POPULAR
-    else CSE_POPULAR.filter {
-        it.symbol.contains(query, ignoreCase = true) ||
-        it.name.contains(query, ignoreCase = true)
+    private fun fallback(query: String): List<SymbolSearchResult> {
+        return if (query.isBlank()) CSE_POPULAR
+        else CSE_POPULAR.filter {
+            it.symbol.contains(query, ignoreCase = true) ||
+            it.name.contains(query, ignoreCase = true)
+        }
     }
 
     suspend fun fetchCompanyInfo(symbol: String): SymbolInfo? {
