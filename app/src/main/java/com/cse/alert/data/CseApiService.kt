@@ -24,7 +24,6 @@ interface CseApiService {
         @Field("keyword") keyword: String
     ): Response<List<SymbolSearchResult>>
 
-    /** Returns ALL listed companies with today's prices — single POST, no params needed */
     @POST("todaySharePrice")
     suspend fun getTodaySharePrice(): Response<List<TodaySharePrice>>
 }
