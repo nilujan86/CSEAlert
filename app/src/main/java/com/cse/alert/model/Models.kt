@@ -311,4 +311,4 @@ val CSE_ALL_COMPANIES = listOf(
 val CSE_POPULAR = CSE_ALL_COMPANIES
 
 // Keep small fallback alias pointing to full list
-val CSE_POPULAR = CSE_ALL_COMPANIES
+//val CSE_POPULAR = CSE_ALL_COMPANIES
