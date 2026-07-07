@@ -68,7 +68,13 @@ data class AlertUiState(
     val message: String? = null,
     val searchResults: List<SymbolSearchResult> = emptyList()
 )
-
+data class TodaySharePrice(
+    @SerializedName("symbol")          val symbol: String,
+    @SerializedName("name")            val name: String,
+    @SerializedName("lastTradedPrice") val lastTradedPrice: Double,
+    @SerializedName("change")          val change: Double,
+    @SerializedName("changePerc")      val changePerc: Double
+)
 // ── Popular CSE stocks fallback ───────────────────────────────────────────────
 
 val CSE_POPULAR = listOf(
