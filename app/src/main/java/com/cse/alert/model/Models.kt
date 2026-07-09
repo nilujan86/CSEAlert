@@ -124,6 +124,8 @@ val CSE_ALL_COMPANIES = listOf(
     SymbolSearchResult("CTC.N0000",  "CEYLON TOBACCO COMPANY PLC (Voting)"),
     SymbolSearchResult("CTHR.N0000", "C T HOLDINGS PLC (Voting)"),
     SymbolSearchResult("CTHR.X0000", "C T HOLDINGS PLC (Non-Voting)"),
+    SymbolSearchResult("COCR.X0000", "COMMERCIAL CREDIT AND FINANCE PLC (Non-Voting)"),
+    SymbolSearchResult("COCR.N0000", "COMMERCIAL CREDIT AND FINANCE PLC (Voting)"),
 
     // ── D ────────────────────────────────────────────────────────────────────
     SymbolSearchResult("DALA.N0000", "DALAKOTUWA PLANTATIONS PLC (Voting)"),
@@ -175,6 +177,9 @@ val CSE_ALL_COMPANIES = listOf(
     SymbolSearchResult("JKH.X0000",  "JOHN KEELLS HOLDINGS PLC (Non-Voting)"),
     SymbolSearchResult("JKHL.N0000", "JOHN KEELLS HOTELS PLC (Voting)"),
     SymbolSearchResult("JKHL.X0000", "JOHN KEELLS HOTELS PLC (Non-Voting)"),
+    SymbolSearchResult("JXG.X0000", "JANASHAKTHI PLC (Non-Voting)"),
+    SymbolSearchResult("JXG.N0000", "JANASHAKTHI PLC (Voting)"),
+
 
     // ── K ────────────────────────────────────────────────────────────────────
     SymbolSearchResult("KCAB.N0000", "KELANI CABLES PLC (Voting)"),
